@@ -25,6 +25,9 @@ pipeline {
             sh "export VERSION=$PREVIEW_VERSION && skaffold build -f skaffold.yaml"
             sh "jx step post build --image $DOCKER_REGISTRY/$ORG/$APP_NAME:$PREVIEW_VERSION"
           }
+          dir('/home/jenkins/go/src/github.com/sjatdailymotion/mulder/charts/mulder') {
+            sh "jx step helm build"
+          }
           dir('/home/jenkins/go/src/github.com/sjatdailymotion/mulder/charts/preview') {
             sh "make preview"
             sh "jx preview --app $APP_NAME --dir ../.."
@@ -40,7 +43,7 @@ pipeline {
         container('go') {
           dir('/home/jenkins/go/src/github.com/sjatdailymotion/mulder') {
             checkout scm
-
+          
             // ensure we're not on a detached head
             sh "git checkout master"
             sh "git config --global credential.helper store"
